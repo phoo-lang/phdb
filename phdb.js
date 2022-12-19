@@ -40,12 +40,15 @@ export class PhooDebugger {
     enable() {
         this.enabled = true;
         visible(this.el, true);
-        this.brk.click();
+        visible(brkbtn, true);
+        visible(contbtn, false);
+        visible(intobtn, false);
+        visible(overbtn, false);
+        visible(outbtn, false);
     }
     disable() {
         this.enabled = false;
         visible(this.el, false);
-        this.cnt.click();
     }
     attach(elem) {
         var w = document.createElement('div');
@@ -94,8 +97,6 @@ export class PhooDebugger {
         });
         this.wsw = w.querySelector('.dbws');
         this.rsw = w.querySelector('.dbrs');
-        this.brk = brkbtn;
-        this.cnt = contbtn;
         elem.append(w);
     }
     async breakpointhook() {
