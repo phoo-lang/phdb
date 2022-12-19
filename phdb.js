@@ -28,11 +28,13 @@ export class PhooDebugger {
         this.enabled = false;
         this.resolver = undefined;
         this.thread = thread;
+        this.increment = 0;
         // Monkey patch
         var oldTick = thread.tick;
         thread.tick = async () => {
+            var oldDepth = thread.returnStack.length;
             await oldTick.call(thread);
-            await this.breakpointhook();
+            await this.breakpointhook(oldDepth == thread.returnStack.length);
         };
         this.attach(elem);
         this.el = elem;
@@ -68,14 +70,7 @@ export class PhooDebugger {
         var intobtn = w.querySelector('.dbinto');
         var overbtn = w.querySelector('.dbover');
         var outbtn = w.querySelector('.dbout');
-        brkbtn.addEventListener('click', () => {
-            this.overDepth = this.thread.returnStack.length;
-            visible(brkbtn, false);
-            visible(contbtn, true);
-            visible(intobtn, true);
-            visible(overbtn, true);
-            visible(outbtn, true);
-        });
+        brkbtn.addEventListener('click', () => this.break());
         contbtn.addEventListener('click', () => {
             this.overDepth = -1;
             visible(brkbtn, true);
@@ -84,10 +79,7 @@ export class PhooDebugger {
             visible(overbtn, false);
             visible(outbtn, false);
             if (this.resolver) {
-                this.resolver({
-                    increment: 0,
-                    originalDepth: this.thread.returnStack.length,
-                });
+                this.resolver();
                 this.resolver = undefined;
             }
         });
@@ -104,15 +96,24 @@ export class PhooDebugger {
         this.rsw = w.querySelector('.dbrs');
         elem.append(w);
     }
-    async breakpointhook() {
+    break() {
+        this.overDepth = this.thread.returnStack.length;
+    }
+    async breakpointhook(depthChanged) {
         if (!this.enabled || this.thread.returnStack.length > this.overDepth) return;
         this.render();
         this.el.querySelector('.dbbrk').click();
-        var cmd = await new Promise(r => { this.resolver = r; });
+        await new Promise(r => { this.resolver = r; });
         // alert(cmd.originalDepth + ', += ' + cmd.increment + ', l= ' + this.thread.returnStack.length + ', over= ' + this.overDepth);
-        if (this.thread.returnStack.length != cmd.originalDepth) {
-            if (cmd.increment > 0 || this.overDepth > -cmd.increment) this.overDepth += cmd.increment;
+        if (depthChanged) {
+            if (this.increment > 0 || this.overDepth > -this.increment) {
+                this.overDepth += this.increment;
+                this.increment = 0;
+            }
         }
+        visible(this.el, true);
+        visible(this.el.querySelector('.dbbrk'), false);
+        for (var c of ['.dbcont', '.dbinto', '.dbover', '.dbout']) visible(this.el.querySelector(c), true);
     }
     render() {
         this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack, 3, false);
@@ -127,12 +128,11 @@ export class PhooDebugger {
         }
     }
     step(stackDelta) {
+        this.increment = stackDelta;
         if (this.resolver) {
-            this.resolver({
-                increment: stackDelta,
-                originalDepth: this.thread.returnStack.length,
-            });
+            this.resolver();
             this.resolver = undefined;
         }
+        for (var c of ['.dbbrk', '.dbcont', '.dbinto', '.dbover', '.dbout']) visible(this.el.querySelector(c), false);
     }
 }
