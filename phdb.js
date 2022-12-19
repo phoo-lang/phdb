@@ -35,6 +35,15 @@ export class PhooDebugger {
             await oldTick.call(thread);
         };
         this.attach(elem);
+        this.el = elem;
+    }
+    enable() {
+        this.enabled = true;
+        visible(this.el, true);
+    }
+    disable() {
+        this.enabled = false;
+        visible(this.el, false);
     }
     attach(elem) {
         var w = document.createElement('div');
