@@ -31,8 +31,8 @@ export class PhooDebugger {
         // Monkey patch
         var oldTick = thread.tick;
         thread.tick = async () => {
-            await this.breakpointhook();
             await oldTick.call(thread);
+            await this.breakpointhook();
         };
         this.attach(elem);
         this.el = elem;
@@ -48,9 +48,9 @@ export class PhooDebugger {
         visible(this.el, false);
     }
     attach(elem) {
-        var w = document.createElement('div');
+        var w = document.createElement('details');
         w.setAttribute('class', 'debugger');
-        w.innerHTML = `<p>Debugger</p>
+        w.innerHTML = `<summary>Debugger</summary>
         <p>
             <button class="dbbrk">Break</button>
             <button class="dbcont">Continue</button>
@@ -82,6 +82,10 @@ export class PhooDebugger {
             visible(intobtn, false);
             visible(overbtn, false);
             visible(outbtn, false);
+            if (this.resolver) {
+                this.resolver();
+                this.resolver = undefined;
+            }
         });
         intobtn.addEventListener('click', () => {
             this.step(1);
@@ -101,7 +105,10 @@ export class PhooDebugger {
         if (!this.enabled || this.thread.returnStack.length > this.overDepth) return;
         this.render();
         this.el.querySelector('.dbbrk').click();
-        await new Promise(r => { this.resolver = r; });
+        var cmd = await new Promise(r => { this.resolver = r; });
+        if (this.thread.returnStack.length != cmd.originalDepth) {
+            if (cmd.increment > 0 || this.overDepth > -cmd.increment) this.overDepth += cmd.increment;
+        }
         if (this.thread.returnStack.length == 0) this.disable();
     }
     render() {
@@ -117,9 +124,11 @@ export class PhooDebugger {
         }
     }
     step(stackDelta) {
-        if (stackDelta > 0 || this.overDepth > -stackDelta) this.overDepth += stackDelta;
         if (this.resolver) {
-            this.resolver();
+            this.resolver({
+                increment: stackDelta,
+                originalDepth: this.thread.returnStack.length
+            });
             this.resolver = undefined;
         }
     }
