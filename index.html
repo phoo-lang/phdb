@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Phoo Debugger Test</title>
+        <link rel="stylesheet" href="/phdb/phdb.css">
+        <style>
+            @font-face {
+                font-family: "IBM Mono";
+                src: url("/ext/Web437_IBM_CGA.woff") format('woff');
+            }
+            body {
+                background: black;
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Phoo debugger test</h1>
+        <div id="debugger"></div>
+        <pre id="output"></pre>
+        <script type="module">
+            import { PhooDebugger } from "/phdb/phdb.js";
+            import { Phoo, initBuiltins, FetchLoader, ES6Loader, STACK_TRACE_SYMBOL } from '/phoo/src/index.js';
+            
+            const out = document.getElementById('output');
+            const win = document.getElementById('debugger');
+            
+            
+            function puts(str, err=false) {
+                if (err) {
+                    var x = document.createElement('span');
+                    x.setAttribute('style', 'color: red');
+                    x.append(str);
+                    str = x;
+                }
+                out.append(str);
+            }
+ 
+            async function main() {
+                try {
+                    var p = new Phoo({ loaders: [new FetchLoader('/phoo/lib/'), new ES6Loader('../lib/')] });
+                    Object.assign(window, { p });
+                    var thread = p.createThread('__debugger__');
+                    await initBuiltins(thread, '/phoo/lib/builtins.ph');
+                    var debugger_ = new PhooDebugger(win, thread);
+                    debugger_.enable();
+                    thread.module.words.add('puts', function() {
+                        puts('' + this.pop());
+                    });
+                    await thread.run('10 times [ $ "wheein"ei puts ] $ "done" puts');
+                } catch (e) {
+                    puts('error = ', true);
+                    puts(e, true);
+                    puts('\ne.stack = ', true);
+                    puts(e.stack, true);
+                    throw e;
+                }
+            }
+            main();
+        </script>
+    </body>
+</html>
