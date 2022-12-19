@@ -45,10 +45,11 @@
                     await initBuiltins(thread, '/phoo/lib/builtins.ph');
                     var debugger_ = new PhooDebugger(win, thread);
                     debugger_.enable();
+                    debugger_.overDepth = 2;
                     thread.module.words.add('puts', function() {
                         puts('' + this.pop());
                     });
-                    await thread.run('10 times [ $ "wheein"ei puts ] $ "done" puts');
+                    await thread.run('10 times [ $ "whee " puts i puts 10 chr puts ] $ "hooray!" puts');
                 } catch (e) {
                     puts('error = ', true);
                     puts(e, true);
