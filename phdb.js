@@ -83,7 +83,10 @@ export class PhooDebugger {
             visible(overbtn, false);
             visible(outbtn, false);
             if (this.resolver) {
-                this.resolver();
+                this.resolver({
+                    increment: 0,
+                    originalDepth: this.thread.returnStack.length,
+                });
                 this.resolver = undefined;
             }
         });
@@ -125,7 +128,7 @@ export class PhooDebugger {
         if (this.resolver) {
             this.resolver({
                 increment: stackDelta,
-                originalDepth: this.thread.returnStack.length
+                originalDepth: this.thread.returnStack.length,
             });
             this.resolver = undefined;
         }
