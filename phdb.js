@@ -97,13 +97,15 @@ export class PhooDebugger {
         elem.append(w);
     }
     async breakpointhook() {
+        if (this.thread.returnStack.length == 0) this.disable();
         if (!this.enabled || this.thread.returnStack.length > this.overDepth) return;
         this.render();
         await new Promise(r => { this.resolver = r; });
+        if (this.thread.returnStack.length == 0) this.disable();
     }
     render() {
         this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack, 5).replaceAll(' class="pointer"', '');
-        var s = '<p>(' + this.thread.returnStack.length + ')</p>';
+        var s = '<p>(' + (this.thread.returnStack.length + 1) + ')</p>' + stringify_rstack(this.thread.state);
         for (var i = this.thread.returnStack.length - 1; i >= 0; i--) {
             s += stringify_rstack(this.thread.returnStack[i]);
         }
