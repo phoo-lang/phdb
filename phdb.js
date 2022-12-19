@@ -117,7 +117,7 @@ export class PhooDebugger {
     }
     render() {
         this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack, 3, false);
-        var s = '<p>(' + (this.thread.returnStack.length + 1) + ')</p>' + stringify_rstack(this.thread.state);
+        var s = '<p>(' + (this.thread.returnStack.length + 1) + ') break at ' + (this.overDepth + 1) + '</p>' + stringify_rstack(this.thread.state);
         for (var i = this.thread.returnStack.length - 1; i >= 0; i--) {
             s += stringify_rstack(this.thread.returnStack[i]);
         }
