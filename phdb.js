@@ -109,6 +109,7 @@ export class PhooDebugger {
         this.render();
         this.el.querySelector('.dbbrk').click();
         var cmd = await new Promise(r => { this.resolver = r; });
+        alert(cmd.originalDepth + ' ' + cmd.increment + ' ' + this.thread.returnStack.length);
         if (this.thread.returnStack.length != cmd.originalDepth) {
             if (cmd.increment > 0 || this.overDepth > -cmd.increment) this.overDepth += cmd.increment;
         }
