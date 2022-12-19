@@ -18,7 +18,7 @@ function stringify_rstack(entry) {
 }
 
 function visible(element, v) {
-    if (v) element.setAttribute('style', 'display: none');
+    if (!v) element.setAttribute('style', 'display: none');
     else element.removeAttribute('style');
 }
 
