@@ -105,11 +105,11 @@ export class PhooDebugger {
         elem.append(w);
     }
     async breakpointhook() {
-        if (!this.enabled || this.thread.returnStack.length > (this.overDepth + 1)) return;
+        if (!this.enabled || this.thread.returnStack.length > this.overDepth) return;
         this.render();
         this.el.querySelector('.dbbrk').click();
         var cmd = await new Promise(r => { this.resolver = r; });
-        alert(cmd.originalDepth + ', += ' + cmd.increment + ', l= ' + this.thread.returnStack.length + ', over= ' + this.overDepth);
+        // alert(cmd.originalDepth + ', += ' + cmd.increment + ', l= ' + this.thread.returnStack.length + ', over= ' + this.overDepth);
         if (this.thread.returnStack.length != cmd.originalDepth) {
             if (cmd.increment > 0 || this.overDepth > -cmd.increment) this.overDepth += cmd.increment;
         }
