@@ -5,6 +5,11 @@
     padding: 0.5em;
 }
 
+.debugger::selection {
+    color: black;
+    background: white;
+}
+
 .debugger p {
     margin: 0.25em;
 }
@@ -18,7 +23,6 @@
     white-space: nowrap;
 }
 
-.debugger::selection,
 .debugger .rstack-entry::selection,
 .debugger .rstack-entry span::selection,
 .debugger .rstack-entry span.pointer {
