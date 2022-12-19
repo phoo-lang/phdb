@@ -100,6 +100,7 @@ export class PhooDebugger {
         if (this.thread.returnStack.length == 0) this.disable();
         if (!this.enabled || this.thread.returnStack.length > this.overDepth) return;
         this.render();
+        this.el.querySelector('.dbbrk').click();
         await new Promise(r => { this.resolver = r; });
         if (this.thread.returnStack.length == 0) this.disable();
     }
@@ -110,7 +111,7 @@ export class PhooDebugger {
             s += stringify_rstack(this.thread.returnStack[i]);
         }
         this.rsw.innerHTML = s;
-        for (var e of this.rsw.querySelectorAll('p.rstack-entry')) {
+        for (var e of this.rsw.querySelectorAll('.rstack-entry')) {
             var x = e.querySelector('.pointer')
             if (x) x.scrollIntoView();
         }
