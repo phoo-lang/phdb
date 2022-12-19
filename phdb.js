@@ -4,8 +4,8 @@ function debugger_colorize(text, color) {
     return `<span style="--color: ${color}" class="pointer">${text}</span>`;
 }
 
-function debugger_stringify(thing) {
-    return stringify(thing, { colorize: debugger_colorize, max_depth: 1 });
+function debugger_stringify(thing, n=1) {
+    return stringify(thing, { colorize: debugger_colorize, max_depth: n });
 }
 
 function stringify_rstack(entry) {
@@ -102,13 +102,16 @@ export class PhooDebugger {
         await new Promise(r => { this.resolver = r; });
     }
     render() {
-        this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack).replaceAll(' class="pointer"', '');
+        this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack, 5).replaceAll(' class="pointer"', '');
         var s = '<p>(' + this.thread.returnStack.length + ')</p>';
         for (var i = this.thread.returnStack.length - 1; i >= 0; i--) {
             s += stringify_rstack(this.thread.returnStack[i]);
         }
         this.rsw.innerHTML = s;
-        for (var e of this.rsw.querySelectorAll('p.rstack-entry')) e.querySelector('.pointer').scrollIntoView();
+        for (var e of this.rsw.querySelectorAll('p.rstack-entry')) {
+            var x = e.querySelector('.pointer')
+            if (x) x.scrollIntoView();
+        }
     }
     step(stackDelta) {
         if (stackDelta > 0 || this.overDepth > -stackDelta) this.overDepth += stackDelta;
