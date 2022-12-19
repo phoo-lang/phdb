@@ -65,33 +65,16 @@ export class PhooDebugger {
         <p class="dbws rstack-entry"></p>
         <p>Return stack:</p>
         <div class="dbrs"></div>`;
-        var brkbtn = w.querySelector('.dbbrk');
-        var contbtn = w.querySelector('.dbcont')
-        var intobtn = w.querySelector('.dbinto');
-        var overbtn = w.querySelector('.dbover');
-        var outbtn = w.querySelector('.dbout');
-        brkbtn.addEventListener('click', () => this.break());
-        contbtn.addEventListener('click', () => {
-            this.overDepth = -1;
-            visible(brkbtn, true);
-            visible(contbtn, false);
-            visible(intobtn, false);
-            visible(overbtn, false);
-            visible(outbtn, false);
-            if (this.resolver) {
-                this.resolver();
-                this.resolver = undefined;
-            }
-        });
-        intobtn.addEventListener('click', () => {
-            this.step(1);
-        });
-        overbtn.addEventListener('click', () => {
-            this.step(0);
-        });
-        outbtn.addEventListener('click', () => {
-            this.step(-1);
-        });
+        this.brkbtn = w.querySelector('.dbbrk');
+        this.contbtn = w.querySelector('.dbcont')
+        this.intobtn = w.querySelector('.dbinto');
+        this.overbtn = w.querySelector('.dbover');
+        this.outbtn = w.querySelector('.dbout');
+        this.brkbtn.addEventListener('click', () => this.break());
+        this.contbtn.addEventListener('click', () => this.continue());
+        this.intobtn.addEventListener('click', () => this.into());
+        this.overbtn.addEventListener('click', () => this.over());
+        this.outbtn.addEventListener('click', () => this.out());
         this.wsw = w.querySelector('.dbws');
         this.rsw = w.querySelector('.dbrs');
         elem.append(w);
@@ -99,13 +82,30 @@ export class PhooDebugger {
     break() {
         this.overDepth = this.thread.returnStack.length;
         visible(this.el, true);
-        visible(this.el.querySelector('.dbbrk'), false);
-        for (var c of ['.dbcont', '.dbinto', '.dbover', '.dbout']) visible(this.el.querySelector(c), true);
+        visible(this.brkbtn, false);
+        visible(this.contbtn, true);
+        visible(this.intobtn, true);
+        visible(this.overbtn, true);
+        visible(this.outbtn, true);
     }
+    continue() {
+        this.overDepth = -1;
+        visible(this.brkbtn, true);
+        visible(this.contbtn, false);
+        visible(this.intobtn, false);
+        visible(this.overbtn, false);
+        visible(this.outbtn, false);
+        if (this.resolver) {
+            this.resolver();
+            this.resolver = undefined;
+        }
+    }
+    into() { this.step(1); }
+    over() { this.step(0); }
+    out() { this.step(-1); }
     async breakpointhook(depthChanged) {
         if (!this.enabled || this.thread.returnStack.length > this.overDepth) return;
         this.render();
-        await new Promise(r => { this.resolver = r; });
         // alert(cmd.originalDepth + ', += ' + cmd.increment + ', l= ' + this.thread.returnStack.length + ', over= ' + this.overDepth);
         if (depthChanged) {
             if (this.increment > 0 || this.overDepth > -this.increment) {
@@ -113,6 +113,7 @@ export class PhooDebugger {
                 this.increment = 0;
             }
         }
+        await new Promise(r => { this.resolver = r; });
     }
     render() {
         this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack, 3, false);
