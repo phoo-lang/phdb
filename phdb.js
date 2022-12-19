@@ -1,20 +1,20 @@
 import stringify from '/app/stringify.js'; // see https://github.com/phoo-lang/phoo-lang.github.io/blob/main/app/stringify.js
 
 function debugger_colorize(text, color) {
+    return `<span style="--color: ${color}">${text}</span>`;
+}
+
+function debugger_colorize_pointed(text, color) {
     return `<span style="--color: ${color}" class="pointer">${text}</span>`;
 }
 
-function debugger_stringify(thing, n=1) {
-    return stringify(thing, { colorize: debugger_colorize, max_depth: n });
+function debugger_stringify(thing, n, p) {
+    return stringify(thing, { colorize: (p ? debugger_colorize_pointed : debugger_colorize), max_depth: n });
 }
 
 function stringify_rstack(entry) {
     var { pc, arr } = entry;
-    return '<p class="rstack-entry">[' + arr.map((x, i, a) => {
-        var xx = debugger_stringify(x);
-        if (i != pc) xx = xx.replace(' class="pointer"', '');
-        return xx;
-    }).join(', ') + ']</p>';
+    return '<p class="rstack-entry">[' + arr.map((x, i) => debugger_stringify(x, 1, i == pc)).join(', ') + ']</p>';
 }
 
 function visible(element, v) {
@@ -104,7 +104,7 @@ export class PhooDebugger {
         if (this.thread.returnStack.length == 0) this.disable();
     }
     render() {
-        this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack, 5).replaceAll(' class="pointer"', '');
+        this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack, 3, false);
         var s = '<p>(' + (this.thread.returnStack.length + 1) + ')</p>' + stringify_rstack(this.thread.state);
         for (var i = this.thread.returnStack.length - 1; i >= 0; i--) {
             s += stringify_rstack(this.thread.returnStack[i]);
