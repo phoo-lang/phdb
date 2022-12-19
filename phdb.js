@@ -132,6 +132,5 @@ export class PhooDebugger {
             this.resolver();
             this.resolver = undefined;
         }
-        for (var c of ['.dbbrk', '.dbcont', '.dbinto', '.dbover', '.dbout']) visible(this.el.querySelector(c), false);
     }
 }
