@@ -54,7 +54,10 @@
                     thread.module.words.add('puts', function() {
                         puts('' + this.pop());
                     });
-                    await thread.run('10 times [ $ "whee " puts i puts 10 chr puts ] $ "hooray!" puts');
+                    thread.module.words.add('eputs', function() {
+                        puts('' + this.pop(), true);
+                    });
+                    await thread.run('10 times [ $ "whee " puts i puts 10 chr puts ] $ "hooray!" eputs');
                 } catch (e) {
                     puts('error = ', true);
                     puts(e, true);
