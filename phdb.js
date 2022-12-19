@@ -10,15 +10,23 @@ function debugger_stringify(thing) {
 
 function stringify_rstack(entry) {
     var { pc, arr } = entry;
-    return '<div class="rstack-entry">[' + arr.map((x, i, a) => {
+    return '<p class="rstack-entry">[' + arr.map((x, i, a) => {
         var xx = debugger_stringify(x);
         if (i != pc) xx = xx.replace(' class="pointer"', '');
         return xx;
-    }).join(', ') + ']</div>';
+    }).join(', ') + ']</p>';
+}
+
+function visible(element, v) {
+    if (v) element.setAttribute('style', 'display: none');
+    else element.removeAttribute('style');
 }
 
 class PhooDebugger {
     constructor(elem, thread) {
+        this.overDepth = 0;
+        this.enabled = false;
+        this.resolver = undefined;
         this.thread = thread;
         // Monkey patch
         var oldTick = thread.tick;
@@ -35,29 +43,66 @@ class PhooDebugger {
         <p>
             <button class="dbbrk">Break</button>
             <button class="dbcont">Continue</button>
-            <button class="dbinto">Step Into</button>
-            <button class="dbover">Step Over</button>
-            <button class="dbout">Step Out</button>
+            <button class="dbinto">Into</button>
+            <button class="dbover">Over</button>
+            <button class="dbout">Out</button>
         </p>
         <p>Work stack:</p>
-        <div class="dbws"></div>
+        <p class="dbws rstack-entry"></p>
         <p>Return stack:</p>
-        <div class="dbrs"></div>`
-        w.querySelector('.dbbrk').addEventListener('click', () => {/* TODO */});
-        w.querySelector('.dbcont').addEventListener('click', () => {/* TODO */});
-        w.querySelector('.dbinto').addEventListener('click', () => {/* TODO */});
-        w.querySelector('.dbover').addEventListener('click', () => {/* TODO */});
-        w.querySelector('.dbout').addEventListener('click', () => {/* TODO */});
+        <div class="dbrs"></div>`;
+        var brkbtn = w.querySelector('.dbbrk');
+        var contbtn = w.querySelector('.dbcont')
+        var intobtn = w.querySelector('.dbinto');
+        var overbtn = w.querySelector('.dbover');
+        var outbtn = w.querySelector('.dbout');
+        brkbtn.addEventListener('click', () => {
+            this.overDepth = this.thread.returnStack.length;
+            visible(brkbtn, false);
+            visible(contbtn, true);
+            visible(intobtn, true);
+            visible(overbtn, true);
+            visible(outbtn, true);
+        });
+        contbtn.addEventListener('click', () => {
+            this.overDepth = -1;
+            visible(brkbtn, true);
+            visible(contbtn, false);
+            visible(intobtn, false);
+            visible(overbtn, false);
+            visible(outbtn, false);
+        });
+        intobtn.addEventListener('click', () => {
+            this.step(1);
+        });
+        overbtn.addEventListener('click', () => {
+            this.step(0);
+        });
+        outbtn.addEventListener('click', () => {
+            this.step(-1);
+        });
         this.wsw = w.querySelector('.dbws');
         this.rsw = w.querySelector('.dbrs');
         elem.append(w);
     }
     async breakpointhook() {
-        // Bail if depth is deep
-        // Do some inspecting
-        // TODO render it to HTML
+        if (!this.enabled || this.thread.returnStack.length > this.overDepth) return;
+        this.render();
+        await new Promise(r => { this.resolver = r; });
     }
     render() {
-        // TODO
+        this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack).replaceAll(' class="pointer"', '');
+        var s = '<p>(' + this.thread.returnStack.length + ')</p>';
+        for (var i = this.thread.returnStack.length - 1; i >= 0; i--) {
+            s += stringify_rstack(this.thread.returnStack[i]);
+        }
+        this.rsw.innerHTML = s;
+    }
+    step(stackDelta) {
+        if (stackDelta > 0 || this.overDepth > -stackDelta) this.overDepth += stackDelta;
+        if (this.resolver) {
+            this.resolver();
+            this.resolver = undefined;
+        }
     }
 }
