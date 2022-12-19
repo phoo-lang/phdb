@@ -97,6 +97,7 @@ class PhooDebugger {
             s += stringify_rstack(this.thread.returnStack[i]);
         }
         this.rsw.innerHTML = s;
+        for (var e of this.rsw.querySelectorAll('p.rstack-entry')) e.querySelector('.pointer').scrollIntoView();
     }
     step(stackDelta) {
         if (stackDelta > 0 || this.overDepth > -stackDelta) this.overDepth += stackDelta;
