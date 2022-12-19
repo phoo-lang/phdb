@@ -105,7 +105,7 @@ export class PhooDebugger {
         elem.append(w);
     }
     async breakpointhook() {
-        if (!this.enabled || this.thread.returnStack.length > this.overDepth) return;
+        if (!this.enabled || this.thread.returnStack.length > (this.overDepth + 1)) return;
         this.render();
         this.el.querySelector('.dbbrk').click();
         var cmd = await new Promise(r => { this.resolver = r; });
