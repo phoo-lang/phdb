@@ -1,0 +1,42 @@
+.debugger {
+    font-family: "IBM Mono", Courier, monospace;
+    background: black;
+    color: white;
+    padding: 0.5em;
+}
+
+.debugger p {
+    margin: 0.25em;
+}
+
+.debugger .rstack-entry,
+.debugger .rstack-entry span {
+    overflow-x: auto;
+    --color: white;
+    color: var(--color);
+    background: black;
+    white-space: nowrap;
+}
+
+.debugger::selection,
+.debugger .rstack-entry::selection,
+.debugger .rstack-entry span::selection,
+.debugger .rstack-entry span.pointer {
+    background: var(--color, white);
+    color: black;
+}
+
+.debugger button {
+    font-family: "IBM Mono", Courier, monospace;
+    background: #ddd;
+    color: black;
+    border: none;
+    margin: none;
+    padding: none;
+    font-size: inherit;
+}
+
+.debugger button:hover,
+.debugger button:active {
+    background: white;
+}
