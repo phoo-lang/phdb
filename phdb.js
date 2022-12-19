@@ -40,11 +40,8 @@ export class PhooDebugger {
     enable() {
         this.enabled = true;
         visible(this.el, true);
-        visible(brkbtn, true);
-        visible(contbtn, false);
-        visible(intobtn, false);
-        visible(overbtn, false);
-        visible(outbtn, false);
+        visible(this.el.querySelector('.dbbrk'), true);
+        for (var c of ['.dbcont', '.dbinto', '.dbover', '.dbout']) visible(this.el.querySelector(c), false);
     }
     disable() {
         this.enabled = false;
