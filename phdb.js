@@ -98,11 +98,13 @@ export class PhooDebugger {
     }
     break() {
         this.overDepth = this.thread.returnStack.length;
+        visible(this.el, true);
+        visible(this.el.querySelector('.dbbrk'), false);
+        for (var c of ['.dbcont', '.dbinto', '.dbover', '.dbout']) visible(this.el.querySelector(c), true);
     }
     async breakpointhook(depthChanged) {
         if (!this.enabled || this.thread.returnStack.length > this.overDepth) return;
         this.render();
-        this.el.querySelector('.dbbrk').click();
         await new Promise(r => { this.resolver = r; });
         // alert(cmd.originalDepth + ', += ' + cmd.increment + ', l= ' + this.thread.returnStack.length + ', over= ' + this.overDepth);
         if (depthChanged) {
@@ -111,9 +113,6 @@ export class PhooDebugger {
                 this.increment = 0;
             }
         }
-        visible(this.el, true);
-        visible(this.el.querySelector('.dbbrk'), false);
-        for (var c of ['.dbcont', '.dbinto', '.dbover', '.dbout']) visible(this.el.querySelector(c), true);
     }
     render() {
         this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack, 3, false);
