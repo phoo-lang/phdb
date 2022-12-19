@@ -22,7 +22,7 @@ function visible(element, v) {
     else element.removeAttribute('style');
 }
 
-class PhooDebugger {
+export class PhooDebugger {
     constructor(elem, thread) {
         this.overDepth = 0;
         this.enabled = false;
