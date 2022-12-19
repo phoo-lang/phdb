@@ -50,6 +50,7 @@ export class PhooDebugger {
     attach(elem) {
         var w = document.createElement('details');
         w.setAttribute('class', 'debugger');
+        w.setAttribute('open', true);
         w.innerHTML = `<summary>Debugger</summary>
         <p>
             <button class="dbbrk">Break</button>
