@@ -42,8 +42,11 @@ export class PhooDebugger {
     enable() {
         this.enabled = true;
         visible(this.el, true);
-        visible(this.el.querySelector('.dbbrk'), true);
-        for (var c of ['.dbcont', '.dbinto', '.dbover', '.dbout']) visible(this.el.querySelector(c), false);
+        visible(this.brkbtn, true);
+        visible(this.contbtn, false);
+        visible(this.intobtn, false);
+        visible(this.overbtn, false);
+        visible(this.outbtn, false);
     }
     disable() {
         this.enabled = false;
@@ -80,6 +83,7 @@ export class PhooDebugger {
         elem.append(w);
     }
     break() {
+        this.enable()
         this.overDepth = this.thread.returnStack.length;
         visible(this.el, true);
         visible(this.brkbtn, false);
@@ -113,8 +117,9 @@ export class PhooDebugger {
                 this.overDepth += this.increment;
             }
             else if (this.increment < 0) {
-                this.overDepth = this.thread.workStack.length;
+                this.overDepth = this.thread.returnStack.length;
             }
+            this.overDepth = Math.min(this.overDepth, this.thread.returnStack.length;
         }
         this.increment = 0;
     }
