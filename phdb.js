@@ -37,7 +37,6 @@ export class PhooDebugger {
             await this.breakpointhook(thread.returnStack.length - oldDepth);
         };
         this.attach(elem);
-        this.el = elem;
     }
     enable() {
         this.enabled = true;
@@ -53,6 +52,7 @@ export class PhooDebugger {
         visible(this.el, false);
     }
     attach(elem) {
+        this.el = elem;
         var w = document.createElement('details');
         w.setAttribute('class', 'debugger');
         w.setAttribute('open', true);
@@ -115,9 +115,6 @@ export class PhooDebugger {
         if (depthChange) {
             if (depthChange > 0 && this.increment > 0) {
                 this.overDepth += this.increment;
-            }
-            else if (this.increment < 0) {
-                this.overDepth = this.thread.returnStack.length;
             }
             this.overDepth = Math.min(this.overDepth, this.thread.returnStack.length;
         }
