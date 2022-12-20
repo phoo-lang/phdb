@@ -18,6 +18,7 @@
     white-space: nowrap;
 }
 
+.debugger .rstack-entry .pointer,
 .debugger .rstack-entry .pointer span {
     background: var(--color, white);
     color: black;
