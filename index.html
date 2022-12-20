@@ -48,9 +48,9 @@
                     Object.assign(window, { p });
                     var thread = p.createThread('__debugger__');
                     await initBuiltins(thread, '/phoo/lib/builtins.ph');
-                    var debugger_ = new PhooDebugger(win, thread);
-                    debugger_.enable();
-                    debugger_.overDepth = 2;
+                    var db = new PhooDebugger(win, thread);
+                    db.break();
+                    db.overDepth = 2;
                     thread.module.words.add('puts', function() {
                         puts('' + this.pop());
                     });
