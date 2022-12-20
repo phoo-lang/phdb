@@ -113,6 +113,7 @@ export class PhooDebugger {
             if (depthChange > 0 && this.increment > 0) this.overDepth += this.increment;
             else if (depthChange < 0 && this.increment < 0) this.overDepth = this.thread.returnStack.length;
         }
+        this.overDepth = Math.min(this.overDepth, this.thread.returnStack.length + 1);
         this.increment = 0;
     }
     render() {
