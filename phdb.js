@@ -34,7 +34,7 @@ export class PhooDebugger {
         thread.tick = async () => {
             var oldDepth = thread.returnStack.length;
             await oldTick.call(thread);
-            await this.breakpointhook(oldDepth == thread.returnStack.length);
+            await this.breakpointhook(thread.returnStack.length - oldDepth);
         };
         this.attach(elem);
         this.el = elem;
@@ -103,17 +103,20 @@ export class PhooDebugger {
     into() { this.step(1); }
     over() { this.step(0); }
     out() { this.step(-1); }
-    async breakpointhook(depthChanged) {
+    async breakpointhook(depthChange) {
         if (!this.enabled || this.thread.returnStack.length > this.overDepth) return;
         this.render();
+        await new Promise(r => { this.resolver = r; });
         // alert(cmd.originalDepth + ', += ' + cmd.increment + ', l= ' + this.thread.returnStack.length + ', over= ' + this.overDepth);
-        if (depthChanged) {
-            if (this.increment > 0 || this.overDepth > -this.increment) {
+        if (depthChange) {
+            if (depthChange > 0 && this.increment > 0) {
                 this.overDepth += this.increment;
-                this.increment = 0;
+            }
+            else if (this.increment < 0) {
+                this.overDepth = this.thread.workStack.length;
             }
         }
-        await new Promise(r => { this.resolver = r; });
+        this.increment = 0;
     }
     render() {
         this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack, 3, false);
