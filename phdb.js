@@ -110,6 +110,7 @@ export class PhooDebugger {
         this.render();
         await new Promise(r => { this.resolver = r; });
         if (depthChange > 0 && this.increment > 0) this.overDepth++;
+        else if (this.increment < 0) this.overDepth = this.thread.returnStack.length - 1;
         else if (depthChange < 0) this.overDepth = this.thread.returnStack.length;
         this.increment = 0;
     }
