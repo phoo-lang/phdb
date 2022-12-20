@@ -6,7 +6,7 @@ function debugger_colorize(text, color) {
 
 function debugger_stringify(thing, n, p) {
     var s = stringify(thing, { colorize: debugger_colorize, max_depth: n });
-    if (p) s = `<span class="pointer">${p}</span>`;
+    if (p) s = `<span class="pointer">${s}</span>`;
     return s;
 }
 
