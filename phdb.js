@@ -109,17 +109,14 @@ export class PhooDebugger {
         if (!this.enabled || this.thread.returnStack.length > this.overDepth) return;
         this.render();
         await new Promise(r => { this.resolver = r; });
-        // alert(cmd.originalDepth + ', += ' + cmd.increment + ', l= ' + this.thread.returnStack.length + ', over= ' + this.overDepth);
         if (depthChange) {
-            if (depthChange > 0 && this.increment > 0) {
-                this.overDepth += this.increment;
-            }
-            this.overDepth = Math.min(this.overDepth, this.thread.returnStack.length);
+            if (depthChange > 0 && this.increment > 0) this.overDepth += this.increment;
+            else if (depthChange < 0 && this.increment < 0) this.overDepth = this.thread.returnStack.length;
         }
         this.increment = 0;
     }
     render() {
-        this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack, 3, false);
+        this.wsw.innerHTML = '(' + this.thread.workStack.length + ') ' + debugger_stringify(this.thread.workStack, 4, false);
         var s = '<p>(' + (this.thread.returnStack.length + 1) + ') break at ' + (this.overDepth + 1) + '</p>' + stringify_rstack(this.thread.state);
         for (var i = this.thread.returnStack.length - 1; i >= 0; i--) {
             s += stringify_rstack(this.thread.returnStack[i]);
