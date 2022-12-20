@@ -4,12 +4,10 @@ function debugger_colorize(text, color) {
     return `<span style="--color: ${color}">${text}</span>`;
 }
 
-function debugger_colorize_pointed(text, color) {
-    return `<span style="--color: ${color}" class="pointer">${text}</span>`;
-}
-
 function debugger_stringify(thing, n, p) {
-    return stringify(thing, { colorize: (p ? debugger_colorize_pointed : debugger_colorize), max_depth: n });
+    var s = stringify(thing, { colorize: debugger_colorize, max_depth: n });
+    if (p) s = `<span class="pointer">${p}</span>`;
+    return s;
 }
 
 function stringify_rstack(entry) {
@@ -116,7 +114,7 @@ export class PhooDebugger {
             if (depthChange > 0 && this.increment > 0) {
                 this.overDepth += this.increment;
             }
-            this.overDepth = Math.min(this.overDepth, this.thread.returnStack.length;
+            this.overDepth = Math.min(this.overDepth, this.thread.returnStack.length);
         }
         this.increment = 0;
     }
